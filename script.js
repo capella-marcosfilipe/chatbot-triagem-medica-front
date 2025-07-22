@@ -1,4 +1,5 @@
 const API_BASE_URL = "https://chatbot-triagem-medica.onrender.com/api/v1";
+// const API_BASE_URL = "http://127.0.0.1:8001/api/v1";
 
 // --- Variáveis Globais de estado ---
 let currentStep = 'welcome'; // As próximas são: 'lgpd', 'ask_name', 'ask_address', 'ask_age', 'smartwatch_loading', 'gemini_chat', 'final_display'
@@ -20,6 +21,9 @@ const dataCollectionFormDiv = document.getElementById('dataCollectionForm');
 const personalDataForm = document.getElementById('personalDataForm');
 const finalFichaContainer = document.getElementById('finalFichaContainer');
 const fichaContentPre = document.getElementById('fichaContent');
+const fichaContentFormattedDiv = document.getElementById(
+  "fichaContentFormatted"
+);
 const chatInputArea = document.getElementById('chatInputArea');
 
 // Inputs do formulário
@@ -79,6 +83,40 @@ function showFinalFicha() {
     chatInputArea.classList.add('hidden'); // Garante que o input do chat esteja oculto
     // Opcional: Limpar mensagens antigas se for uma "nova tela"
     // chatMessagesDiv.innerHTML = '';
+}
+
+/**
+ * Formata o objeto fichaDeAtendimento para exibição amigável.
+ * @param {object} ficha O objeto fichaDeAtendimento completo.
+ * @returns {string} O HTML formatado para exibição.
+ */
+function formatFichaForDisplay(ficha) {
+  let htmlContent = '';
+
+  // Dados Pessoais
+  htmlContent += `<div class="ficha-item"><strong>Nome Completo:</strong> ${ficha.nome_completo || 'N/A'}</div>`;
+  htmlContent += `<div class="ficha-item"><strong>Endereço:</strong> ${ficha.endereco || 'N/A'}</div>`;
+  htmlContent += `<div class="ficha-item"><strong>Idade:</strong> ${ficha.idade || 'N/A'} anos</div>`;
+
+  // Dados do Smartwatch (Fisiológicos)
+  if (ficha.dados_fisiologicos) {
+      htmlContent += `<div class="ficha-item"><strong>Dados do Smartwatch:</strong></div>`;
+      htmlContent += `<ul>`;
+      htmlContent += `<li class="ficha-item">Altura: ${ficha.dados_fisiologicos.altura_cm || 'N/A'} cm</li>`;
+      htmlContent += `<li class="ficha-item">Peso: ${ficha.dados_fisiologicos.peso_kg || 'N/A'} kg</li>`;
+      htmlContent += `<li class="ficha-item">Pressão Arterial: ${ficha.dados_fisiologicos.pressao_arterial_sistolica || 'N/A'}/${ficha.dados_fisiologicos.pressao_arterial_diastolica || 'N/A'} mmHg</li>`;
+      htmlContent += `<li class="ficha-item">Oxigenação: ${ficha.dados_fisiologicos.oxigenacao_sangue_percentual || 'N/A'}%</li>`;
+      htmlContent += `<li class="ficha-item">Nível de Estresse: ${ficha.dados_fisiologicos.nivel_estresse || 'N/A'}</li>`;
+      htmlContent += `</ul>`;
+  } else {
+      htmlContent += `<div class="ficha-item"><strong>Dados do Smartwatch:</strong> Não disponíveis</div>`;
+  }
+
+  // Especialidade e Orientação
+  htmlContent += `<div class="ficha-item"><strong>Especialidade Sugerida:</strong> ${ficha.especialidade_medica || 'N/A'}</div><br />`;
+  htmlContent += `<div class="ficha-item"><strong>Orientação ao Médico:</strong> ${ficha.orientacao_ao_medico || 'N/A'}</div>`;
+
+  return htmlContent;
 }
 
 // --- Funções de Comunicação com o Backend ---
@@ -284,12 +322,13 @@ function processStep() {
       break;
     case "final_display":
       showFinalFicha(); // Mostra a área da ficha final
-      // A ficha já está em fichaDeAtendimento, apenas exibe
-      fichaContentPre.textContent = JSON.stringify(
-        fichaDeAtendimento,
-        null,
-        2
-      );
+      // fichaContentPre.textContent = JSON.stringify(
+      //   fichaDeAtendimento,
+      //   null,
+      //   2
+      // );
+      fichaContentFormattedDiv.innerHTML =
+        formatFichaForDisplay(fichaDeAtendimento);
       break;
   }
 }
