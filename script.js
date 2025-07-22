@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1:8001/api/v1';
+const API_BASE_URL = "https://chatbot-triagem-medica.onrender.com/api/v1";
 
 // --- Variáveis Globais de estado ---
 let currentStep = 'welcome'; // As próximas são: 'lgpd', 'ask_name', 'ask_address', 'ask_age', 'smartwatch_loading', 'gemini_chat', 'final_display'
